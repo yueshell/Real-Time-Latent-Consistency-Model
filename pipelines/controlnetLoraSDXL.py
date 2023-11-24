@@ -18,8 +18,12 @@ from config import Args
 from pydantic import BaseModel, Field
 from PIL import Image
 
+# controlnet_model = "diffusers/controlnet-canny-sdxl-1.0"
+# model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+# lcm_lora_id = "latent-consistency/lcm-lora-sdxl"
+
 controlnet_model = "diffusers/controlnet-canny-sdxl-1.0"
-model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+model_id = "/content/models/LCM/stable-diffusion-xl-base-1.0"
 lcm_lora_id = "latent-consistency/lcm-lora-sdxl"
 
 # # base model with activation token, it will prepend the prompt with the activation token

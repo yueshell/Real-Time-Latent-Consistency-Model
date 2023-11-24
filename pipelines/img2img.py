@@ -1,6 +1,6 @@
 from diffusers import (
     AutoPipelineForImage2Image,
-    AutoencoderTiny,
+    AutoencoderTiny, LCMScheduler,
 )
 from compel import Compel
 import torch
@@ -14,10 +14,12 @@ import psutil
 from config import Args
 from pydantic import BaseModel, Field
 from PIL import Image
+from pipelines.utils.translate import translate
 
-base_model = "SimianLuo/LCM_Dreamshaper_v7"
+base_model = "/content/models/LCM/SimianLuo/LCM_Dreamshaper_v7"
 taesd_model = "madebyollin/taesd"
-
+scheduler = LCMScheduler.from_pretrained(
+    "/content/models/LCM/SimianLuo/LCM_Dreamshaper_v7/scheduler/scheduler_config.json")
 default_prompt = "Portrait of The Terminator with , glare pose, detailed, intricate, full of colour, cinematic lighting, trending on artstation, 8k, hyperrealistic, focused, extreme details, unreal engine 5 cinematic, masterpiece"
 
 
@@ -70,11 +72,12 @@ class Pipeline:
 
     def __init__(self, args: Args, device: torch.device, torch_dtype: torch.dtype):
         if args.safety_checker:
-            self.pipe = AutoPipelineForImage2Image.from_pretrained(base_model)
+            self.pipe = AutoPipelineForImage2Image.from_pretrained(base_model,scheduler=scheduler)
         else:
             self.pipe = AutoPipelineForImage2Image.from_pretrained(
                 base_model,
                 safety_checker=None,
+                scheduler=scheduler,
             )
         if args.use_taesd:
             self.pipe.vae = AutoencoderTiny.from_pretrained(
@@ -109,10 +112,18 @@ class Pipeline:
             text_encoder=self.pipe.text_encoder,
             truncate_long_prompts=False,
         )
+        print(args.use_taesd)
 
     def predict(self, params: "Pipeline.InputParams") -> Image.Image:
         generator = torch.manual_seed(params.seed)
-        prompt_embeds = self.compel_proc(params.prompt)
+        autotranslate = False
+        global translate_text
+        if autotranslate:
+            translate_text = translate(params.prompt)
+            print(translate_text)
+        else:
+            translate_text = params.prompt
+        prompt_embeds = self.compel_proc(translate_text)
         results = self.pipe(
             image=params.image,
             prompt_embeds=prompt_embeds,

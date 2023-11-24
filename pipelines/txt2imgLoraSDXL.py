@@ -16,10 +16,13 @@ from config import Args
 from pydantic import BaseModel, Field
 from PIL import Image
 
-controlnet_model = "diffusers/controlnet-canny-sdxl-1.0"
-model_id = "stabilityai/stable-diffusion-xl-base-1.0"
-lcm_lora_id = "latent-consistency/lcm-lora-sdxl"
+# controlnet_model = "diffusers/controlnet-canny-sdxl-1.0"
+# model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+# lcm_lora_id = "latent-consistency/lcm-lora-sdxl"
 
+controlnet_model = "diffusers/controlnet-canny-sdxl-1.0"
+model_id = "/content/models/LCM/stable-diffusion-xl-base-1.0"
+lcm_lora_id = "latent-consistency/lcm-lora-sdxl"
 
 default_prompt = "close-up photography of old man standing in the rain at night, in a street lit by lamps, leica 35mm summilux"
 default_negative_prompt = "blurry, low quality, render, 3D, oversaturated"

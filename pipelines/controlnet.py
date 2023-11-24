@@ -1,7 +1,7 @@
 from diffusers import (
     StableDiffusionControlNetImg2ImgPipeline,
     AutoencoderTiny,
-    ControlNetModel,
+    ControlNetModel, LCMScheduler,
 )
 from compel import Compel
 import torch
@@ -17,8 +17,9 @@ from config import Args
 from pydantic import BaseModel, Field
 from PIL import Image
 
-base_model = "SimianLuo/LCM_Dreamshaper_v7"
+base_model = "/content/models/LCM/SimianLuo/LCM_Dreamshaper_v7"
 taesd_model = "madebyollin/taesd"
+scheduler = LCMScheduler.from_pretrained("/content/models/LCM/SimianLuo/LCM_Dreamshaper_v7/scheduler/scheduler_config.json")
 controlnet_model = "lllyasviel/control_v11p_sd15_canny"
 
 default_prompt = "Portrait of The Terminator with , glare pose, detailed, intricate, full of colour, cinematic lighting, trending on artstation, 8k, hyperrealistic, focused, extreme details, unreal engine 5 cinematic, masterpiece"
@@ -134,13 +135,14 @@ class Pipeline:
         ).to(device)
         if args.safety_checker:
             self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
-                base_model, controlnet=controlnet_canny
+                base_model, controlnet=controlnet_canny, scheduler=scheduler
             )
         else:
             self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
                 base_model,
                 safety_checker=None,
                 controlnet=controlnet_canny,
+                scheduler=scheduler,
             )
         if args.use_taesd:
             self.pipe.vae = AutoencoderTiny.from_pretrained(
